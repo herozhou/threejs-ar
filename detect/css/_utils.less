@@ -1,0 +1,91 @@
+/*
+ * Clearfix 
+ *
+ * Reference: http://nicolasgallagher.com/micro-clearfix-hack/
+ */
+.clearfix {
+    *zoom: 1;
+
+    &:before,
+    &:after {
+        display: table;
+        content: " ";
+    }
+
+    &:after {
+        clear: both;
+    }
+}
+
+/*
+ * Cross browser inline block
+ *
+ * Reference: http://jasonkarns.com/blog/cross-browser-inline-block/
+ */
+.inline-block() {
+    display: inline-block;
+    *display: inline;
+    vertical-align: top;
+    *zoom: 1;
+}
+
+/*
+ * Set box model
+ *
+ * Reference: http://css-tricks.com/box-sizing/
+ */
+.box-sizing(@box) {
+    -webkit-box-sizing: @box;
+       -moz-box-sizing: @box;
+            box-sizing: @box;
+}
+
+/*
+ * Box shadow
+ */
+.box-shadow(@shadow) {
+  -webkit-box-shadow: @shadow;
+     -moz-box-shadow: @shadow;
+          box-shadow: @shadow;
+}
+
+/*
+ * Border radius
+ */
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+     -moz-border-radius: @radius;
+          border-radius: @radius;
+}
+
+/*
+ * Reference: http://markdotto.com/bootstrap/
+ */
+#gradient {
+    .vertical (@startColor, @endColor) {
+        background-color: @startColor;
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, @startColor), color-stop(100%, @endColor));
+        background-image: -webkit-linear-gradient(@startColor, @endColor);
+        background-image:    -moz-linear-gradient(@startColor, @endColor);
+        background-image:     -ms-linear-gradient(@startColor, @endColor);
+        background-image:      -o-linear-gradient(@startColor, @endColor);
+        background-image:         linear-gradient(@startColor, @endColor);
+        background-repeat: repeat-x;
+    }
+}
+
+/*
+ * Reference: http://stackoverflow.com/questions/826782/css-rule-to-disable-text-selection-highlighting
+ */
+.no-user-select() {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+.transition(@transition) {
+    -webkit-transition: @transition;
+       -moz-transition: @transition;
+            transition: @transition;
+}

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+
+<script>
+
+
+
+/*
+    var myurl=GetQueryString("url");
+    if(myurl !=null && myurl.toString().length>1)
+    {
+        alert(GetQueryString("url"));
+    }
+*/
+GetQueryString('id');
+    function GetQueryString(name)
+    {
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)
+            alert(decodeURI(r[2]));
+    }
+
+  //  alert("这是南昌航空大学");
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="Shortcut Icon" href="img/favicon.png">
+    <meta name="viewport" content="initial-scale=1.0,width=device-width,user-scalable=no">
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <script src="js/material.min.js"></script>
+    <script src="js/job.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/global.js"></script>
+    <script src="js/mdlex.js"></script>
+    <script src="js/ajaxfileupload.js"></script>
+    <link rel="stylesheet" href="css/material.min.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title>HiAR 管理后台 | 新建应用</title>
+</head>
+<body type="card-body" need-signin need-leftbar>
+<div class="topbar"></div>
+<div class="backbar"></div>
+<div class="card_top_offset container">
+    <div class="left wizard" id="wizard-form">
+        <div class="cap">新建应用</div>
+        <div class="step selected" id="step-1">1 填写应用信息</div>
+        <!--<div class="step" id="step-2">2 填写开发信息</div>-->
+        <div class="step" id="step-3">2 完成</div>
+    </div>
+    <div class="card-medium mdl-card mdl-shadow--2dp left" id="input-appinfo-form">
+        <div class="padding">
+            <div class="title">填写应用信息</div>
+            <div class="card-text"></div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label card-item">
+                <input class="mdl-textfield__input" type="text" id="app-name" maxlength="30" placeholder="应用名称"/>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label card-item">
+                <input class="mdl-textfield__input" type="text" id="app-description" maxlength="30" placeholder="应用描述"/>
+            </div>
+        </div>
+        <div class="line"></div>
+        <div class="padding next">
+            <div class="left">
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent large" id="next-button" onclick="show()">新建应用</button>
+                <button class="mdl-button mdl-js-button mdl-js-ripple-effect large" onclick="javascript:history.back();" id="cancel-button">取消</button>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="card-medium mdl-card mdl-shadow--2dp" id="success-form">
+
+    </div>
+    <div class="clear"></div>
+</div>
+<div id="page-path"><a href="javascript:window.location.href=g_pages.app.list;">应用管理</a><img class="top-right-arrow" src="img/ic_keyboard_arrow_right_white_24px.svg">新建应用 </div>
+</body>
+</html>

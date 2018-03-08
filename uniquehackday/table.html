@@ -1,0 +1,511 @@
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <title>元素周期表</title>
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #000000;
+            margin: 0;
+            font-family: Helvetica, sans-serif;;
+            overflow: hidden;
+        }
+
+        a {
+            color: #ffffff;
+        }
+
+        #info {
+            position: absolute;
+            width: 100%;
+            color: #ffffff;
+            padding: 5px;
+            font-family: Monospace;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: center;
+            z-index: 1;
+        }
+
+        #menu {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            font-family: verdana,Tahoma,Arial,Hei,"Microsoft Yahei",SimHei;
+        }
+
+        .element {
+            width: 120px;
+            height: 160px;
+            box-shadow: 0px 0px 12px rgba(0,255,255,0.5);
+            border: 1px solid rgba(127,255,255,0.25);
+            text-align: center;
+            cursor: default;
+        }
+
+        .element:hover {
+            box-shadow: 0px 0px 12px rgba(0,255,255,0.75);
+            border: 1px solid rgba(127,255,255,0.75);
+        }
+
+        .element .number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 12px;
+            color: rgba(127,255,255,0.75);
+        }
+
+        .element .symbol {
+            position: absolute;
+            top: 40px;
+            left: 0px;
+            right: 0px;
+            font-size: 60px;
+            font-weight: bold;
+            color: rgba(255,255,255,0.75);
+            text-shadow: 0 0 10px rgba(0,255,255,0.95);
+        }
+
+        .element .details {
+            position: absolute;
+            bottom: 15px;
+            left: 0px;
+            right: 0px;
+            font-size: 12px;
+            color: rgba(127,255,255,0.75);
+        }
+
+        button {
+            color: rgba(127,255,255,0.75);
+            background: transparent;
+            outline: 1px solid rgba(127,255,255,0.75);
+            border: 0px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: rgba(0,255,255,0.5);
+        }
+        button:active {
+            color: #000000;
+            background-color: rgba(0,255,255,0.75);
+        }
+
+
+        .header
+        {
+            position:relative;
+            top:0%;
+
+            background-color: red;
+            margin: 0 auto;
+            z-index: 999;
+        }
+
+
+        .header .button1{
+            position: absolute;
+            right: 0%;
+        }
+        .header .button2{
+            position: absolute;
+            left: 0%;
+        }
+    </style>
+</head>
+<body>
+<script src="js/three.min.js"></script>
+<script src="js/tween.min.js"></script>
+<script src="js/TrackballControls.js"></script>
+<script src="js/CSS3DRenderer.js"></script>
+
+
+<div class="header">
+    <button class="button1">
+    <a href="../uniquehackdayobject.html">AR搜集元素</a>
+    </button>
+
+
+    <button class="button2">
+<a href="index.html">返回实验室</a>
+    </button>
+</div>
+
+
+<div id="container"></div>
+<div id="info">元素周期表</div>
+<div id="menu" style="display: none;">
+    <button id="table">表面</button>
+    <button id="sphere">球体</button>
+    <button id="helix">螺旋</button>
+    <button id="grid">网格</button>
+</div>
+
+<script>
+
+    var table = [
+      "A", "宇宙中最小最轻<br>含量最丰富的元素", "1.00794", 1, 1,
+        "He", "最轻的惰性气体<br>不易产生化学反应", "4.002602", 18, 1,
+        "Li", "金属锂非常柔软<br>可以被普通小刀切开", "#6.941", 1, 2,
+        "Be", "可见于海蓝宝石和绿宝石之中", "9.012182", 2, 2,
+        "B", "燃烧时可呈现出翠绿色的火焰", "#10.811", 13, 2,
+        "C", "有多种形式：木炭，石墨，钻石", "#12.0107", 14, 2,
+        "N", "空气中含量最多的元素<br>有些形式致头痛", "#14.0067", 15, 2,
+        "O", "常成对结合氧气分子<br>是氧化反应的基础", "#15.9994", 16, 2,
+        "F", "极为活泼的元素，易于燃烧", "18.9984032", 17, 2,
+        "Ne", "当电荷通过时<br>能发出橙色光芒", "#20.1797", 18, 2,
+        "Na", "海水中富含<br>但纯钠金属会与水剧烈反应", "22.98976...", 1, 3,
+        "Mg", "燃烧时不能被水熄灭<br>只能用沙子扑灭", "#24.305", 2, 3,
+        "Al", "坚硬且轻的金属<br>常用于制作可乐罐", "26.9815386", 13, 3,
+        "Si", "用于电脑芯片中<br>“硅谷名字的由来", "#28.0855", 14, 3,
+        "P", "火柴头上的成分<br>易于燃烧", "30.973762", 15, 3,
+        "S", "味道难闻的好战分子，多见于手雷和火药粉", "#32.065", 16, 3,
+        "Cl", "吸入氯气可导致沿河鼻粘膜烧伤", "#35.453", 17, 3,
+        "Ar", "Argon有懈怠的意思，多用于做灯泡", "#39.948", 18, 3,
+        "K", "非常活跃的金属，燃烧时呈现淡紫色", "#39.948", 1, 4,
+        "Ca", "骨骼和牙齿健康所必需，牛奶中富含", "#40.078", 2, 4,
+        "Sc", "含钪的棒球棒更好用，能提高运动员成绩", "44.955912", 3, 4,
+        "Ti", "几乎不引起过敏反应，常用于人体植入物", "#47.867", 4, 4,
+        "V", "常被加入钢质工具中，以增加其硬度", "#50.9415", 5, 4,
+        "Cr", "硬度极高，早年曾用于汽车表面材质", "#51.9961", 6, 4,
+        "Mn", "过量时会导致锰中毒，出现幻觉和暴力行为", "54.938045", 7, 4,
+        "Fe", "很容易生锈，需加入多种其他元素防生锈", "#55.845", 8, 4,
+        "Co", "钴可用于制作极高磁力的磁铁", "58.933195", 9, 4,
+        "Ni", "Nickel的含义是“魔鬼绿”，使玻璃呈绿色", "#58.6934", 10, 4,
+        "Cu", "一种红色的金属，是非常好的导体", "#63.546", 11, 4,
+        "Zn", "钢管表面镀锌可以保护钢铁不被腐蚀", "#65.38", 12, 4,
+        "Ga", "稼智德勺子可在热水中被融化", "#69.723", 13, 4,
+        "Ge", "一种重要的半导体，见于手机等电子产品", "#72.63", 14, 4,
+        "As", "高度毒性，常用于制作毒药", "#74.9216", 15, 4,
+        "Se", "牛如果摄入过多硒会导致“蹒跚病”", "#78.96", 16, 4,
+        "Br", "两种在室温下呈现液态的元素之一", "#79.904", 17, 4,
+        "Kr", "无色无味的惰性气体", "#83.798", 18, 4,
+        "Rb", "极为活泼的金属，遇水反应剧烈", "#85.4678", 1, 5,
+        "Sr", "可使焰火呈现出特殊的红色", "#87.62", 2, 5,
+        "Y", "具有一些神秘而奇怪的特性", "88.90585", 3, 5,
+        "Zr", "方晶锆石，是钻石的人工替代品", "#91.224", 4, 5,
+        "Nb", "取自古希腊神话人物，因虚荣而被惩罚", "92.90628", 5, 5,
+        "Mo", "是一种坚硬的金属，用于制作强力的工具", "#95.96", 6, 5,
+        "Tc", "在X线技术中使用，可定位骨肿瘤", "(98)", 7, 5,
+        "Ru", "稀有金属，使珠宝呈现“深色系”", "#101.07", 8, 5,
+        "Rh", "是最善良的金属之一，用于珠宝表面处理", "#102.9055", 9, 5,
+        "Pd", "能消除有害物质，用于汽车的催化转换器", "#106.42", 10, 5,
+        "Ag", "所有金属中导电性能最好的", "#107.8682", 11, 5,
+        "Cd", "可见于一些染料中", "#112.411", 12, 5,
+        "In", "当被快速弯曲时，会发出尖锐的声响", "#114.818", 13, 5,
+        "Sn", "曾大量用于制作容器，但已经被铝替代", "#118.71", 14, 5,
+        "Sb", "脆且有哦毒性的金属，制作铅弹可增加强度", "#121.76", 15, 5,
+        "Te", "是一种具有腐烂大蒜气味的物质", "127.6", 16, 5,
+        "I", "发出紫色气体，用于杀菌、抗感染", "126.90447", 17, 5,
+        "Xe", "稀有的惰性气体", "#131.293", 18, 5,
+        "Cs", "是最活泼的元素之一，遇水剧烈爆炸", "#132.9054", 1, 6,
+        "Ba", "活性很强的金属，在空气中会燃烧", "#132.9054", 2, 6,
+        "La", "第一个稀土金属，用于产生演播室灯光", "138.90547", 4, 9,
+        "Ce", "用于某些微波炉，防止食物残留", "#140.116", 5, 9,
+        "Pr", "氧化物呈绿色，源自希腊语“绿色双胞胎”", "140.90765", 6, 9,
+        "Nd", "氧化物呈玫瑰色，名称意为“新双胞胎”", "#144.242", 7, 9,
+        "Pm", "", "(145)", 8, 9,
+        "Sm", "Samarium", "#150.36", 9, 9,
+        "Eu", "Europium", "#151.964", 10, 9,
+        "Gd", "Gadolinium", "#157.25", 11, 9,
+        "Tb", "Terbium", "158.92535", 12, 9,
+        "Dy", "Dysprosium", "162.5", 13, 9,
+        "Ho", "Holmium", "164.93032", 14, 9,
+        "Er", "Erbium", "#167.259", 15, 9,
+        "Tm", "Thulium", "168.93421", 16, 9,
+        "Yb", "Ytterbium", "#173.054", 17, 9,
+        "Lu", "Lutetium", "#174.9668", 18, 9,
+        "Hf", "Hafnium", "#178.49", 4, 6,
+        "Ta", "Tantalum", "180.94788", 5, 6,
+        "W", "Tungsten", "#183.84", 6, 6,
+        "Re", "Rhenium", "#186.207", 7, 6,
+        "Os", "Osmium", "#190.23", 8, 6,
+        "Ir", "Iridium", "#192.217", 9, 6,
+        "Pt", "Platinum", "#195.084", 10, 6,
+        "Au", "Gold", "196.966569", 11, 6,
+        "Hg", "Mercury", "#200.59", 12, 6,
+        "Tl", "Thallium", "#204.3833", 13, 6,
+        "Pb", "Lead", "207.2", 14, 6,
+        "Bi", "Bismuth", "#208.9804", 15, 6,
+        "Po", "Polonium", "(209)", 16, 6,
+        "At", "Astatine", "(210)", 17, 6,
+        "Rn", "Radon", "(222)", 18, 6,
+        "Fr", "Francium", "(223)", 1, 7,
+        "Ra", "Radium", "(226)", 2, 7,
+        "Ac", "Actinium", "(227)", 4, 10,
+        "Th", "Thorium", "232.03806", 5, 10,
+        "Pa", "Protactinium", "#231.0588", 6, 10,
+        "U", "Uranium", "238.02891", 7, 10,
+        "Np", "Neptunium", "(237)", 8, 10,
+        "Pu", "Plutonium", "(244)", 9, 10,
+        "Am", "Americium", "(243)", 10, 10,
+        "Cm", "Curium", "(247)", 11, 10,
+        "Bk", "Berkelium", "(247)", 12, 10,
+        "Cf", "Californium", "(251)", 13, 10,
+        "Es", "Einstenium", "(252)", 14, 10,
+        "Fm", "Fermium", "(257)", 15, 10,
+        "Md", "Mendelevium", "(258)", 16, 10,
+        "No", "Nobelium", "(259)", 17, 10,
+        "Lr", "Lawrencium", "(262)", 18, 10,
+        "Rf", "Rutherfordium", "(267)", 4, 7,
+        "Db", "Dubnium", "(268)", 5, 7,
+        "Sg", "Seaborgium", "(271)", 6, 7,
+        "Bh", "Bohrium", "(272)", 7, 7,
+        "Hs", "Hassium", "(270)", 8, 7,
+        "Mt", "Meitnerium", "(276)", 9, 7,
+        "Ds", "Darmstadium", "(281)", 10, 7,
+        "Rg", "Roentgenium", "(280)", 11, 7,
+        "Cn", "Copernicium", "(285)", 12, 7,
+        "Uut", "Unutrium", "(284)", 13, 7,
+        "Fl", "Flerovium", "(289)", 14, 7,
+        "Uup", "Ununpentium", "(288)", 15, 7,
+        "Lv", "Livermorium", "(293)", 16, 7,
+        "Uus", "Ununseptium", "(294)", 17, 7,
+        "Uuo", "Ununoctium", "(294)", 18, 7
+    ];
+    var camera, scene, renderer;
+    var controls;
+
+    var objects = [];
+    var targets = { table: [], sphere: [], helix: [], grid: [] };
+    var elemlist=['C','H','O','Na','Cl','Ca','Fe','Ta','Bk']
+    init();
+
+    animate();
+
+    function init() {
+
+        camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+        camera.position.z = 5000;
+      
+
+        
+        scene = new THREE.Scene();
+
+        // table
+
+        for ( var i = 0; i < table.length; i += 5 ) {
+
+            var element = document.createElement( 'div' );
+            element.className = 'element';//( Math.random() * 0.5 + 0.25 )
+            if(elemlist.indexOf(table[ i  ])>-1)
+              element.style.backgroundColor = 'rgba(225,225,225,1)';
+            else
+                element.style.backgroundColor = 'rgba(225,225,225,0)';
+            var number = document.createElement( 'div' );
+            number.className = 'number';
+            number.textContent = (i/5) + 1;
+            element.appendChild( number );
+
+            var symbol = document.createElement( 'div' );
+            symbol.className = 'symbol';
+            symbol.textContent = table[ i ];
+            element.appendChild( symbol );
+
+            var details = document.createElement( 'div' );
+            details.className = 'details';
+            details.innerHTML = table[ i + 1 ] + '<br>' + table[ i + 2 ];
+            element.appendChild( details );
+            element.addEventListener("click",function(){
+              //   alert(this.childNodes[1].textContent)
+             //   var reg = /^[0-9]+/;
+
+            },false)
+
+            var object = new THREE.CSS3DObject( element );
+            object.position.x = Math.random() * 4000 - 2000;
+            object.position.y = Math.random() * 4000 - 2000;
+            object.position.z = Math.random() * 4000 - 2000;
+            scene.add( object );
+
+            objects.push( object );
+
+            //
+
+            var object = new THREE.Object3D();
+            object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
+            object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
+
+            targets.table.push( object );
+
+        }
+
+        // sphere 球体
+
+        var vector = new THREE.Vector3();
+
+        for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+            var phi = Math.acos( -1 + ( 2 * i ) / l );
+            var theta = Math.sqrt( l * Math.PI ) * phi;
+
+            var object = new THREE.Object3D();
+
+            object.position.x = 800 * Math.cos( theta ) * Math.sin( phi );
+            object.position.y = 800 * Math.sin( theta ) * Math.sin( phi );
+            object.position.z = 800 * Math.cos( phi );
+
+            vector.copy( object.position ).multiplyScalar( 2 );
+
+            object.lookAt( vector );
+
+            targets.sphere.push( object );
+
+        }
+
+        // helix 螺旋
+
+        var vector = new THREE.Vector3();
+
+        for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+            var phi = i * 0.175 + Math.PI;
+
+            var object = new THREE.Object3D();
+
+            object.position.x = 900 * Math.sin( phi );
+            object.position.y = - ( i * 8 ) + 450;
+            object.position.z = 900 * Math.cos( phi );
+
+            vector.x = object.position.x * 2;
+            vector.y = object.position.y;
+            vector.z = object.position.z * 2;
+
+            object.lookAt( vector );
+
+            targets.helix.push( object );
+
+        }
+
+        // grid 网格
+
+        for ( var i = 0; i < objects.length; i ++ ) {
+
+            var object = new THREE.Object3D();
+
+            object.position.x = ( ( i % 5 ) * 400 ) - 800;
+            object.position.y = ( - ( Math.floor( i / 5 ) % 5 ) * 400 ) + 800;
+            object.position.z = ( Math.floor( i / 25 ) ) * 1000 - 2000;
+
+            targets.grid.push( object );
+
+        }
+
+        //将CSS3D渲染到three.js场景中
+
+        renderer = new THREE.CSS3DRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.domElement.style.position = 'absolute';
+        document.getElementById( 'container' ).appendChild( renderer.domElement );
+
+        //判断鼠标移动的JS
+
+        controls = new THREE.TrackballControls( camera, renderer.domElement );
+        controls.rotateSpeed = 0.5;
+        controls.minDistance = 500;
+        controls.maxDistance = 6000;
+        controls.addEventListener( 'change', render );
+
+        var button = document.getElementById( 'table' );
+        button.addEventListener( 'click', function ( event ) {
+
+            transform( targets.table, 2000 ); //表格型
+
+        }, false );
+
+        var button = document.getElementById( 'sphere' );
+        button.addEventListener( 'click', function ( event ) {
+
+            transform( targets.sphere, 2000 );
+
+        }, false );
+
+        var button = document.getElementById( 'helix' );
+        button.addEventListener( 'click', function ( event ) {
+
+            transform( targets.helix, 2000 );
+
+        }, false );
+
+        var button = document.getElementById( 'grid' );
+        button.addEventListener( 'click', function ( event ) {
+
+            transform( targets.grid, 2000 );
+
+        }, false );
+
+        transform( targets.table, 2000 );
+
+        //
+
+        window.addEventListener( 'resize', onWindowResize, false );
+
+    }
+    //重新打乱转换
+    function transform( targets, duration ) {
+
+        TWEEN.removeAll();
+
+        for ( var i = 0; i < objects.length; i ++ ) {
+
+            var object = objects[ i ];
+            var target = targets[ i ];
+           //targets  目标点的信息
+
+
+            //位置转换
+            new TWEEN.Tween( object.position )
+                    .to( { x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration )
+                    .easing( TWEEN.Easing.Exponential.InOut )
+                    .start();
+            //角度转换
+            new TWEEN.Tween( object.rotation )
+                    .to( { x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration )
+                    .easing( TWEEN.Easing.Exponential.InOut )
+                    .start();
+
+        }
+
+        new TWEEN.Tween( this )
+                .to( {}, duration * 2 )
+                .onUpdate( render )
+                .start();
+
+    }
+
+    function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+        render();
+
+    }
+
+    function animate() {
+
+        requestAnimationFrame( animate );
+
+        TWEEN.update();
+
+        controls.update();
+
+    }
+
+    function render() {
+
+        renderer.render( scene, camera );
+
+    }
+
+</script>
+
+
+</body></html>

@@ -1,0 +1,211 @@
+<html lang="en"><head>
+		<title>Clouds</title>
+		<meta charset="utf-8">
+		<style type="text/css">
+
+			body {
+				background-color: #326696;
+				margin: 0px;
+				overflow: hidden;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+				text-align:center;
+			}
+
+			a {
+				color:#0078ff;
+			}
+
+		</style>
+	</head>
+	<body style="background: url(&quot;data:image/png;base64,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&quot;);">
+
+
+
+		<script type="text/javascript" src="http://www.17sucai.com/preview/38630/2013-12-07/3D%E4%BA%91/js/ThreeWebGL.js"></script>
+		<script type="text/javascript" src="http://www.17sucai.com/preview/38630/2013-12-07/3D%E4%BA%91/js/ThreeExtras.js"></script>
+
+		<script type="text/javascript" src="http://www.17sucai.com/preview/38630/2013-12-07/3D%E4%BA%91/js/Detector.js"></script>
+		<script type="text/javascript" src="http://www.17sucai.com/preview/38630/2013-12-07/3D%E4%BA%91/js/RequestAnimationFrame.js"></script>
+
+		<script id="vs" type="x-shader/x-vertex">
+
+			varying vec2 vUv;
+
+			void main() {
+
+				vUv = uv;
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+			}
+
+		</script>
+
+		<script id="fs" type="x-shader/x-fragment">
+
+			uniform sampler2D map;
+
+			uniform vec3 fogColor;
+			uniform float fogNear;
+			uniform float fogFar;
+
+			varying vec2 vUv;
+
+			void main() {
+
+				float depth = gl_FragCoord.z / gl_FragCoord.w;
+				float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+				gl_FragColor = texture2D( map, vUv );
+				gl_FragColor.w *= pow( gl_FragCoord.z, 20.0 );
+				gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+			}
+
+		</script>
+
+		<script type="text/javascript">
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			// Bg gradient
+
+			var canvas = document.createElement( 'canvas' );
+			canvas.width = 32;
+			canvas.height = window.innerHeight;
+
+			var context = canvas.getContext( '2d' );
+
+			var gradient = context.createLinearGradient( 0, 0, 0, canvas.height );
+			gradient.addColorStop(0, "#1e4877");
+			gradient.addColorStop(0.5, "#4584b4");
+
+			context.fillStyle = gradient;
+			context.fillRect(0, 0, canvas.width, canvas.height);
+
+			document.body.style.background = 'url(' + canvas.toDataURL('image/png') + ')';
+
+			// Clouds
+
+			var container;
+			var camera, scene, renderer, sky, mesh, geometry, material,
+			i, h, color, colors = [], sprite, size, x, y, z;
+
+			var mouseX = 0, mouseY = 0;
+			var start_time = new Date().getTime();
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				camera = new THREE.Camera( 30, window.innerWidth / window.innerHeight, 1, 3000 );
+				camera.position.z = 6000;
+
+				scene = new THREE.Scene();
+
+				geometry = new THREE.Geometry();
+
+				var texture = THREE.ImageUtils.loadTexture( 'cloud10.png' );
+				texture.magFilter = THREE.LinearMipMapLinearFilter;
+				texture.minFilter = THREE.LinearMipMapLinearFilter;
+
+				var fog = new THREE.Fog( 0x4584b4, - 100, 3000 );
+
+				material = new THREE.MeshShaderMaterial( {
+
+					uniforms: {
+
+						"map": { type: "t", value:2, texture: texture },
+						"fogColor" : { type: "c", value: fog.color },
+						"fogNear" : { type: "f", value: fog.near },
+						"fogFar" : { type: "f", value: fog.far },
+
+					},
+					vertexShader: document.getElementById( 'vs' ).textContent,
+					fragmentShader: document.getElementById( 'fs' ).textContent,
+					depthTest: false
+
+				} );
+
+				var plane = new THREE.Mesh( new THREE.Plane( 64, 64 ) );
+
+				for ( i = 0; i < 8000; i++ ) {
+
+					plane.position.x = Math.random() * 1000 - 500;
+					plane.position.y = - Math.random() * Math.random() * 200 - 15;
+					plane.position.z = i;
+					plane.rotation.z = Math.random() * Math.PI;
+					plane.scale.x = plane.scale.y = Math.random() * Math.random() * 1.5 + 0.5;
+
+					GeometryUtils.merge( geometry, plane );
+
+				}
+
+				mesh = new THREE.Mesh( geometry, material );
+				scene.addObject( mesh );
+
+				mesh = new THREE.Mesh( geometry, material );
+				mesh.position.z = - 8000;
+				scene.addObject( mesh );
+
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onDocumentMouseMove( event ) {
+
+				mouseX = ( event.clientX - windowHalfX ) * 0.25;
+				mouseY = ( event.clientY - windowHalfY ) * 0.15;
+
+			}
+
+			function onWindowResize( event ) {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				render();
+
+			}
+
+			function render() {
+
+				position = ( ( new Date().getTime() - start_time ) * 0.03 ) % 8000;
+
+				camera.position.x += ( mouseX - camera.target.position.x ) * 0.01;
+				camera.position.y += ( - mouseY - camera.target.position.y ) * 0.01;
+				camera.position.z = - position + 8000;
+
+				camera.target.position.x = camera.position.x;
+				camera.target.position.y = camera.position.y;
+				camera.target.position.z = camera.position.z - 1000;
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script><div><canvas width="1000" height="785"></canvas></div>
+	
+
+</body></html>

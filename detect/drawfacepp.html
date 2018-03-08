@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta charset="UTF-8">
+
+<!-- include three.js -->
+<script src='../webarjs/three.js'></script>
+<!-- <script src='webarjs/stats.min.js'></script>FPS的js-->
+
+<!-- include some extensions -->
+<script src='../webarjs/threex.webcamgrabbing.js'></script>  <!--摄像头这个界面的JS-->
+<script src="../js/jquery-3.1.1.min.js"></script>
+
+<style>
+    #elemdiv{
+        height: 35px;width: 40px;text-align: center;
+        background-image: url('img/15.png') ;
+        background-repeat:no-repeat;
+        background-position:0% 50%;;
+    }
+    #elemdiv2{
+        height: 35px;width: 40px;text-align: center;
+        background-image: url('img/15.png') ;
+        background-repeat:no-repeat;
+        background-position:95% 50%;;
+    }
+   
+     #picture{
+         height:40px;width: 30%;
+         position: absolute;left: 40%;top: 85%;
+    }
+</style>
+<body style='margin: 0px; overflow: hidden;'  id="detector" class="detector">
+
+
+<div><button id='picture' >识别</button></div>
+<canvas id="canvas" width="300" height="300" style="display:none;" ></canvas>
+<div class="faces"></div>
+<div id="elemdiv">
+
+
+</div>
+<div id="elemdiv2">
+
+
+</div>
+
+
+
+
+<script>
+
+
+
+
+</script>
+<script>
+    //////////////////////////////////////////////////////////////////////////////////
+    //      Test if the browser support WebGL and getUserMedia
+    //////////////////////////////////////////////////////////////////////////////////
+    ;(function(){
+        // TODO backport those 2 in Detector.js
+        var hasGetUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) ? true : false
+        var hasMediaStreamTrackSources = MediaStreamTrack.getSources ? true : false
+        var hasWebGL = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) ); } catch ( e ) { return false; } } )()
+
+        if( hasWebGL === false ){
+            alert('your browser doesn\'t support navigator.getUserMedia()')
+        }
+        if( hasMediaStreamTrackSources === false ){
+            alert('your browser doesn\'t support MediaStreamTrack.getSources()')
+        }
+        if( hasGetUserMedia === false ){
+            alert('your browser doesn\'t support navigator.getUserMedia()')
+        }
+    })()
+
+
+    // init renderer
+    var renderer    = new THREE.WebGLRenderer({
+        antialias   : true,
+        alpha       : true
+    });
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+
+    // array of functions for the rendering loop  渲染数组  每一次渲染时执行里面的函数
+    var onRenderFcts = [];
+
+
+    var scene = new THREE.Scene()
+    var camera  = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.01, 1000);
+    camera.position.z = 2;
+    //  camera.position.set(4, -3, 5);
+
+    var light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(4,0, 2);
+    scene.add(light);
+
+
+
+    window.addEventListener('resize', function(){
+        renderer.setSize( window.innerWidth, window.innerHeight )
+        camera.aspect   = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+    }, false)
+
+
+    // render the scene
+    onRenderFcts.push(function(){
+
+        renderer.render( scene, camera );
+
+    })
+
+
+
+
+    // run the rendering loop   定时显示画面看来像动画
+    var previousTime = performance.now()
+
+
+
+    requestAnimationFrame(function animate(now){
+
+        requestAnimationFrame( animate );
+
+
+
+        //每次渲染执行数组里面的数
+        onRenderFcts.forEach(function(onRenderFct){
+            onRenderFct(now, now - previousTime)
+        })
+
+        previousTime    = now
+    })
+
+
+    var videoGrabbing = new THREEx.WebcamGrabbing()  //调用js里的函数
+
+
+    // attach the videoGrabbing.domElement to the body
+    document.body.appendChild(videoGrabbing.domElement)
+
+
+</script>
+<script>
+
+    var API_URL = 'http://api.faceplusplus.com/';
+    var API_KEY = '0df565d6e2a56d30a100686779ada46f';
+    var API_SECRET = 'hO1Ox6df2oym7QKBb562_VRywxwHBj6d';
+    var currentImg = new Image();
+
+
+    var context = canvas.getContext("2d");
+    var video = document.getElementsByTagName("video")[0];
+    document.getElementById("picture").addEventListener("click", function () {
+
+
+
+        var totalImageCount = 0;
+        context.drawImage(video, 0, 0, 300, 300);
+        var facesContainer = $('.faces');
+        //   var image    = canvas.toDataURL("image/png");
+
+        detect(canvas.toDataURL('image/jpeg'), true);
+
+        function detect(src, dataURI) {
+            startLoading();
+            facesContainer.children().remove();
+            var currentImageCount = ++totalImageCount;
+
+            currentImg.onload = function() {
+                var width = canvas.width,
+                        height = canvas.height;
+                var scale = Math.min(width / currentImg.width, height / currentImg.height, 1.0);
+                var imageInfo = {
+                    width: currentImg.width * scale,
+                    height: currentImg.height * scale,
+                    offsetX: (width - currentImg.width * scale) / 2,
+                    offsetY: (height - currentImg.height * scale) / 2
+                };
+                context.drawImage(
+                        currentImg,
+                        imageInfo.offsetX,
+                        imageInfo.offsetY,
+                        imageInfo.width,
+                        imageInfo.height
+                );
+
+
+
+                faceppDetect({
+                    img: src,
+                    type: (dataURI ? 'dataURI' : 'url'),
+                    success: function(faces) {
+                        $('#canvas').show();
+
+                        // display "REST URL"
+                        var url = API_URL + 'detection/detect?api_key=' + API_KEY + '&api_secret=' + API_SECRET;
+                        if (!dataURI) {
+                            url += '&url=' + encodeURIComponent(src);
+                        }
+                        console.log(url);
+                        showStatus(url);
+
+                        var json = JSON.stringify(faces, null, '  ');
+                        try {
+                            // highlight json for "Response JSON"
+                            Rainbow.color(json, 'javascript', function(html) {
+
+                                console.log(json);
+                            });
+                        } catch (err) {
+
+                            console.log(json);
+                        }
+
+                        drawFaces(imageInfo, faces.face);
+
+                    }
+
+                });
+            };
+
+            currentImg.src = src;
+        };
+
+
+        var messages = {
+            URL_ERROR:   'Invalid URL',
+            LOAD_ERROR:  'Failed to Load',
+            LOADING:     'Loading...',
+            NO_FACE:     'No face detected',
+            NO_CAMERA:   'No camera available'
+        };
+        function showStatus(text) {
+            console.log(text);
+        }
+
+
+        function startLoading() {
+            facesContainer.addClass('loading');
+        }
+
+        function stopLoading() {
+            facesContainer.removeClass('loading invalid');
+        }
+
+
+        function drawFaces(imageInfo, faces) {
+            startLoading();
+
+            if (faces.length === 0) {
+                showStatus(messages.NO_FACE);
+            } else {
+                for (var i = faces.length - 1; i >= 0; i--) {
+                    var face = faces[i];
+
+                    // change box color based on gender
+                    var rgbColor,
+                            rgbaColor;
+
+                    if (face.attribute.gender.value === 'Male') {
+                        rgbColor = '#12BDDC';
+                        rgbaColor = 'rgba(18,189,220,0.8)';
+                    } else {
+                        rgbColor = '#C537D8';
+                        rgbaColor = 'rgba(197,55,216,0.8)';
+                    }
+                    console.log("1321312312312312312");
+                    var pointType = ['eye_left', 'eye_right', 'mouth_left', 'mouth_right'];
+
+                    // draw facial pointType
+                    context.fillStyle = rgbColor;
+                    /*
+                    for (var j = pointType.length - 1; j >= 0; j--) {
+                        context.beginPath();
+                        context.arc(imageInfo.offsetX + face[pointType[j]].x * imageInfo.width * 0.01,
+                                imageInfo.offsetY + face[pointType[j]].y * imageInfo.height * 0.01,
+                                face.width * 0.01 * 6, 0, Math.PI * 2);
+                        context.fill();
+                    }
+*/              console.log( imageInfo.height )
+
+                        $('#elemdiv').css({
+                            position: 'absolute',
+                            top: imageInfo.offsetY + face[pointType[0]].y * imageInfo.height * 0.01-20,
+                            left: imageInfo.offsetX + face[pointType[0]].x * imageInfo.width * 0.01-20,
+
+
+                        })
+                    $('#elemdiv2').css({
+                        position: 'absolute',
+                        top: imageInfo.offsetY + face[pointType[1]].y * imageInfo.height * 0.01-20,
+                        left: imageInfo.offsetX + face[pointType[1]].x * imageInfo.width * 0.01-20,
+
+
+                    })
+
+                   
+                    // create box for highlighting face region
+                    $('<div/>').css({
+                        position: 'absolute',
+                        top: imageInfo.offsetY + (face.center.y - face.height / 2) * 0.01 * imageInfo.height - 5,
+                        left: imageInfo.offsetX + (face.center.x - face.width / 2) * 0.01 * imageInfo.width - 5,
+                        width: face.width * imageInfo.width * 0.01,
+                        height: face.height * imageInfo.height * 0.01,
+                        border: '5px solid ' + rgbColor,
+                        borderColor: rgbaColor,
+                        borderRadius: '10px',
+
+
+                    }).
+                            qtip({
+                                content: '<table>' +
+                                '<tr><td>width</td><td>'        + (face.width * 0.01).toFixed(2) + '</td></tr>' +
+                                '<tr><td>height</td><td>'       + (face.height * 0.01).toFixed(2) + '</td></tr>' +
+                                '<tr><td>center</td><td>('      + (face.center.x      * 0.01).toFixed(2) + ', ' + (face.center.y      * 0.01).toFixed(2) + ')</td></tr>' +
+                                '<tr><td>eye_left</td><td>('    + (face.eye_left.x    * 0.01).toFixed(2) + ', ' + (face.eye_left.y    * 0.01).toFixed(2) + ')</td></tr>' +
+                                '<tr><td>eye_right</td><td>('   + (face.eye_right.x   * 0.01).toFixed(2) + ', ' + (face.eye_right.y   * 0.01).toFixed(2) + ')</td></tr>' +
+                                '<tr><td>mouth_left</td><td>('  + (face.mouth_left.x  * 0.01).toFixed(2) + ', ' + (face.mouth_left.y  * 0.01).toFixed(2) + ')</td></tr>' +
+                                '<tr><td>mouth_right</td><td>(' + (face.mouth_right.x * 0.01).toFixed(2) + ', ' + (face.mouth_right.y * 0.01).toFixed(2) + ')</td></tr>' +
+                                '<tr><td>race</td><td>'         + face.attribute.race.value + ' (' + face.attribute.race.confidence.toFixed(2) + '%)</td></tr>' +
+                                '<tr><td>age</td><td>'          + face.attribute.age.value + ' (&#177;' + face.attribute.age.range + ')</td></tr>' +
+                                '<tr><td>gender</td><td>'       + face.attribute.gender.value + ' (' + face.attribute.gender.confidence.toFixed(2) + '%)</td></tr>' +
+                                '</table>',
+                                style: {
+                                    classes: 'detector-tooltip ui-tooltip-light ui-tooltip-tipify'
+                                },
+                                position: {
+                                    my: 'bottom center',
+                                    at: 'top center'
+                                }
+                            }).
+                            appendTo(facesContainer);
+                }
+            }
+            stopLoading();
+        }
+
+
+
+
+        function dataURItoBlob(dataURI) {
+            var binary = atob(dataURI.split(',')[1]);
+            var array = [];
+            for(var i = 0; i < binary.length; i++) {
+                array.push(binary.charCodeAt(i));
+            }
+            return new Blob([new Uint8Array(array)], { type: 'image/jpeg' });
+        }
+
+
+
+
+
+
+
+
+        function faceppDetect(options) {
+            if ($.support.cors) {
+                var xhr = new XMLHttpRequest();
+                xhr.timeout = 10 * 1000;
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            options.success(JSON.parse(xhr.responseText));
+                        } else {
+                            options.error();
+                        }
+                    }
+                };
+
+                if (options.type === 'url') {
+                    xhr.open('GET', API_URL + 'detection/detect?api_key=' + API_KEY + '&api_secret=' + API_SECRET + '&url=' + encodeURIComponent(options.img), true);
+                    xhr.send();
+                } else if (options.type === 'dataURI') {
+                    xhr.open('POST', API_URL + 'detection/detect?api_key=' + API_KEY + '&api_secret=' + API_SECRET, true);
+                    var fd = new FormData();
+                    fd.append('img', dataURItoBlob(options.img));
+                    xhr.send(fd);
+                } else {
+                    options.error();
+                }
+            } else { // fallback to jsonp
+                if (options.type === 'url') {
+                    $.ajax({
+                        url: API_URL + 'detection/detect',
+                        data: {
+                            api_key: API_KEY,
+                            api_secret: API_SECRET,
+                            url: options.img
+                        },
+                        dataType: 'jsonp',
+                        success: options.success,
+                        error: options.error,
+                        timeout: 10 * 1000
+                    });
+                } else {
+                    options.error();
+                }
+            }
+        }
+
+
+    });
+
+
+</script>
+
+<script>
+
+
+</script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ipERS5S1nn9UOyrK9tNBe4WqIchFINFG"></script>
+<script src="../js/jquery-3.1.1.min.js">
+
+
+
+</script>
+
+<script src="vendor/qtip/jquery.qtip.min.js"></script>
+<script src="vendor/rainbow/rainbow.min.js"></script>
+
+</body>
+
+</html>

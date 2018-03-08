@@ -1,0 +1,23 @@
+<html>
+<head>
+    <title>DeviceOrientationEvent</title>
+    <meta charset="UTF-8" />
+    <script type="text/javascript">
+
+        window.addEventListener('deviceorientation', function(e){
+
+            document.getElementById("absolute").innerHTML=e.absolute;
+            document.getElementById("alpha").innerHTML=e.alpha;//0  360 是北
+            document.getElementById("beta").innerHTML=e.beta;
+            document.getElementById("gamma").innerHTML=e.gamma;
+
+        });
+    </script>
+</head>
+<body>
+<p id="absolute"></p>
+<p id="alpha"></p>
+<p id="beta"></p>
+<p id="gamma"></p>
+</body>
+</html>

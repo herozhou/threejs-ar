@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <title>Our First A-Frame Experience</title>
+
+    <script src="js/adapter-latest.js"></script>
+    <script src="js/zepto.min.js"></script>
+    <script src="js/three.js"></script>
+    <style>
+
+        #videoBg{
+            position: absolute;
+            left:0;
+            top:0;
+            right:0;
+            bottom:0;
+            z-index: -1;
+        }
+
+    </style>
+</head>
+<body onload='init();'>
+
+
+
+<canvas id="mainCanvas" width="400px" height="400px" ></canvas>
+
+</body>
+<script type="text/javascript">
+    function init() {
+        // renderer
+        var renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('mainCanvas'),
+            antialias	: true
+
+        });
+        renderer.setClearColor(0xFFFFF); // black
+      //  renderer.setClearColorHex(0xFFFFFF, 1.0)
+        // scene
+        var scene = new THREE.Scene();
+
+        // camera
+        var camera = new THREE.PerspectiveCamera(45, 4 / 3, 1, 1000);
+        camera.position.set(4, -3, 5);
+
+        camera.lookAt(new THREE.Vector3(0, 0, 0));
+        scene.add(camera);
+        var light = new THREE.PointLight(0xffffff, 2, 100);
+        light.position.set(4,0, 2);
+        scene.add(light);
+
+        var texture = THREE.ImageUtils.loadTexture('img/catr.png', {}, function() {
+            renderer.render(scene, camera);
+        });
+
+        // a cube in the scene
+        var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 3),
+                new THREE.MeshLambertMaterial({
+                    map: texture
+                })
+
+        );
+        scene.add(cube);
+
+        // render
+        renderer.render(scene, camera);
+    }
+</script>
+
+<script>
+    // 全屏时重置视频尺寸
+    function onResize(){
+        $('#videoBg').height(window.screen.height)
+                .width('auto');
+    }
+    window.addEventListener('resize', function(){
+        onResize();
+    });
+    setTimeout(function(){
+        onResize();
+        $('#textToDisplay').hide();
+    }, 1000);
+
+    var constraints = window.constraints = {
+        audio: false,
+        video: {
+            facingMode: {
+                exact: "environment"
+            },
+           /*
+            facingMode: "user",  //如果有前置使用前置
+            facingMode: {
+            exact: "environment"   //强制使用后置
+            }
+            var front = false;     //按钮前后摄像头转化
+            document.getElementById('flip-button').onclick = function() { front = !front; };
+
+            var constraints = { video: { facingMode: (front? "user" : "environment") } };
+
+
+
+
+            */
+            width: { min: 1024, ideal: 1280, max: 1920 },  //设置最小分辨率   理想分辨率  与最大分辨率
+            height: { min: 776, ideal: 720, max: 1080 } //设置最小分辨率   理想分辨率  与最大分辨率
+        }
+    };
+    function handleSuccess(stream) {
+        var videoTracks = stream.getVideoTracks();
+        console.log('Got stream with constraints:', constraints);
+        console.log('Using video device: ' + videoTracks[0].label);
+        stream.oninactive = function() {
+            console.log('Stream inactive');
+        };
+        window.stream = stream; // make variable available to browser console
+
+        $('body').append('<video autoplay id="videoBg"></video>');
+        var video = document.querySelector('video');
+        video.srcObject = stream;
+    }
+    function handleError(error) {
+        if (error.name === 'ConstraintNotSatisfiedError') {
+            errorMsg('The resolution ' + constraints.video.width.exact + 'x' +
+            constraints.video.width.exact + ' px is not supported by your device.');
+        } else if (error.name === 'PermissionDeniedError') {
+            errorMsg('Permissions have not been granted to use your camera and ' +
+            'microphone, you need to allow the page access to your devices in ' +
+            'order for the demo to work.');
+        }
+        errorMsg('getUserMedia error: ' + error.name, error);
+    }
+    function errorMsg(msg, error) {
+//        alert(msg);
+        console.log(msg);
+        if (typeof error !== 'undefined') {
+            console.error(error);
+        }
+    }
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+        navigator.mediaDevices.getUserMedia(constraints).
+                then(handleSuccess).catch(handleError);
+    }else{
+        // 不支持调用摄像头的时候，使用默认场景，小树林。
+        $('#sky').attr('src',"https://c1.staticflickr.com/8/7376/16218590470_468084c950_h.jpg")
+                .removeAttr('opacity')
+                .removeAttr('color');
+    }
+
+
+</script>
+</html>

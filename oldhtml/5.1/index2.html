@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+</head>
+<body>
+<video id="video" autoplay=""style='width:640px;height:480px'></video>
+<div><button id='picture' >PICTURE</button></div>
+<canvas id="canvas" width="640" height="480"></canvas>
+<script type="text/javascript">
+    var video = document.getElementById("video");
+    var context = canvas.getContext("2d");
+    var errocb = function () {
+        console.log('sth wrong!');
+    }
+
+    if (navigator.getUserMedia) { // 标准的API
+
+        navigator.getUserMedia({ "video": true }, function (stream) {
+
+            if (video.mozSrcObject !== undefined) {
+                //Firefox中，video.mozSrcObject最初为null，而不是未定义的，我们可以靠这个来检测Firefox的支持
+                video.mozSrcObject = stream;
+            }
+            else {
+
+                video.src = window.URL && window.URL.createObjectURL(stream) || stream;
+            }
+            video.play();
+        }, errocb);
+    } else if (navigator.webkitGetUserMedia) { // WebKit 核心的API
+        navigator.webkitGetUserMedia({ "video": true }, function (stream) {
+            video.src = window.webkitURL.createObjectURL(stream);
+            video.play();
+        }, errocb);
+    }
+
+    document.getElementById("picture").addEventListener("click", function () {
+        alert("123");
+        context.drawImage(video, 0, 0, 640, 480);
+    });
+</script>
+
+</body>
+</html>  

@@ -1,0 +1,13 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: lidanyang
+ * Date: 16/8/8
+ * Time: 下午10:14
+ */
+
+define("APPKEY", "tU2WfZuGZk");
+define("SECRET", "9a92c9d88bb4be3c6111457f619841fc");
+
+define("ACCOUNT", "1075889754@qq.com");
+define("PASSWORD" , "zyhDE321");

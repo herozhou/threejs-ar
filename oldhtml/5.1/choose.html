@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <style>
+        div{
+            float: left;
+            margin-left: 6%;
+            margin-top: 2%;
+            width: 12%;
+            height: 10%;
+            border: 1px solid silver;
+        }
+        div img{
+            width: 100%;
+            height: 120%;
+        }
+        .change{
+            padding: 1px solid #4a90ea;
+        }
+    </style>
+
+</head>
+<body>
+        <div id="00000001"><img src="img/1.png"></div>
+        <div id="00000002"><img src="img/2.png"></div>
+        <div id="00000003"><img src="img/3.png"></div>
+        <div id="00000004"><img src="img/4.png"></div>
+        <div id="00000005"><img src="img/5.png"></div>
+        <br/>  <br/>  <br/>  <br/>  <br/>  <br/>
+        <div id="00000006"><img src="img/6.png"></div>
+
+        <div id="00000007"><img src="img/7.png"></div>
+        <div id="00000008"><img src="img/8.png"></div>
+        <div id="00000009"><img src="img/9.png"></div>
+        <div id="00000010"><img src="img/10.png"></div>
+    <div  style="margin-left: 49%;height: 50px;width: 100px;background: #4a90ea;color: white;text-align: center;line-height: 50px;cursor: pointer;"  onclick="a()">下一步</button>
+    <script type="text/javascript">
+        var i=0;
+        $('div').click(function(){
+            if(i=0) {
+                $(this).addClass("change");
+                i=1;
+            }
+            else{
+                $(".change").removeClass("change");
+                $(this).addClass("change");
+            }
+        })
+        function a() {
+            alert($(".change").attr("id"));
+            window.location.href='http://herozhou.com:8080/upload.jsp'
+        }
+
+
+
+
+    </script>
+</body>
+</html>

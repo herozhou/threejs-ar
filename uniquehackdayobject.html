@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta charset="UTF-8">
+
+<!-- include three.js -->
+<script src='./webarjs/three.js'></script>
+<!-- <script src='webarjs/stats.min.js'></script>FPS的js-->
+
+<!-- include js-aruco -->
+<script src='./webarjs/svd.js'></script><!--SVD PCA的实现一般有两种，一种是用特征值分解去实现的，一种是用奇异值分解去实现-->
+<script src='./webarjs/posit1-patched.js'></script><!--基于共面特征点的姿态估计-->
+<script src='./webarjs/cv.js'></script><!--OPENcv -->
+<script src='./webarjs/aruco.js'></script><!-- 一个微型的基于OPENCV的为了增强现实的库-->
+
+<!-- include some extensions -->
+<script src='./webarjs/threex.webcamgrabbing.js'></script>  <!--摄像头这个界面的JS-->
+<script src="./js/jquery-3.1.1.min.js"></script>
+<script src='./webarjs/threex.jsarucomarker.js'></script><!--跟踪识别JS-->
+
+<script src='./vendor/three.js/examples/js/loaders/OBJLoader.js'></script>
+<script src='./vendor/three.js/examples/js/loaders/MTLLoader.js'></script>
+<script src='./vendor/three.js/examples/js/loaders/OBJMTLLoader.js'></script>
+<script src='./webarjs/threex.universalloader.js'></script>
+<style>
+    #elemdiv {
+        height: 35px;width: 200px;text-align: center;
+         color: rgba(127,255,255,0.75);
+            background: transparent;
+            outline: 1px solid rgba(127,255,255,0.75);
+            border: 0px;
+            padding: 5px 10px;
+            cursor: pointer;
+            position:absolute;top:70%;
+            left:20%;
+    }
+    #result {
+        height: 200px;width: 70%;background-color: #12BDDC;color: white;text-align: center;
+        opacity: 0.5;
+
+    }
+     #picture{
+        position:absolute;top:80%;left:42%;
+    }
+     button {
+            color: rgba(127,255,255,0.75);
+            background: transparent;
+            outline: 1px solid rgba(127,255,255,0.75);
+            border: 0px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: rgba(0,255,255,0.5);
+        }
+        button:active {
+            color: #000000;
+            background-color: rgba(0,255,255,0.75);
+        }
+        ul{
+            list-style: none;
+
+        }
+
+        ul li
+        {
+            line-height: 30px;
+text-align: left;
+color:white;
+        }
+</style>
+<body style='margin: 0px; overflow: hidden;'  id="detector" class="detector">
+
+
+<div><button id='picture' >PICTURE</button></div>
+<canvas id="canvas" width="300" height="300" style="display:none;" ></canvas>
+<div class="faces"></div>
+<div id="elemdiv">
+
+
+</div>
+<div id='suliaolist' style="display:none;position:absolute;top: 50%;left: 20%;">
+    
+
+    <button onclick="document.getElementById('suliaolist').style.display='none' " style="position: absolute;right: 0px;">关闭</button>
+        <ul style="background-color: rgba(127,255,255,0.75);">
+
+            <li style="text-align: left">材料：有机聚合物塑料</li>
+            <li>主要元素:碳，氧，硫，氮 </li>
+            <li>主要组份：高分子量的合成树脂</li>
+            <li>主要用途：增塑剂、稳定剂、抗氧化剂、阻燃剂、润滑剂、着色剂等</li>
+
+
+          
+
+
+
+        </ul>
+</div>
+
+<div id='laptoplist' style="display:none;position:absolute;top: 50%;left: 20%;">
+    
+
+    <button onclick="document.getElementById('laptoplist').style.display='none' " style="position: absolute;right: 0px;">关闭</button>
+        <ul style="background-color: rgba(127,255,255,0.75);">
+
+       
+
+            <li>材料：笔记本电脑</li>
+            <li>你可以获得的元素：硅,锂</li>
+
+
+
+        </ul>
+</div>
+<script>
+
+
+
+
+</script>
+<script>
+    //////////////////////////////////////////////////////////////////////////////////
+    //      Test if the browser support WebGL and getUserMedia
+    //////////////////////////////////////////////////////////////////////////////////
+    ;(function(){
+        // TODO backport those 2 in Detector.js
+        var hasGetUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) ? true : false
+        var hasMediaStreamTrackSources = MediaStreamTrack.getSources ? true : false
+        var hasWebGL = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) ); } catch ( e ) { return false; } } )()
+
+        if( hasWebGL === false ){
+            alert('your browser doesn\'t support navigator.getUserMedia()')
+        }
+        if( hasMediaStreamTrackSources === false ){
+            alert('your browser doesn\'t support MediaStreamTrack.getSources()')
+        }
+        if( hasGetUserMedia === false ){
+            alert('your browser doesn\'t support navigator.getUserMedia()')
+        }
+    })()
+
+
+    // init renderer
+    var renderer    = new THREE.WebGLRenderer({
+        antialias   : true,
+        alpha       : true
+    });
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+
+    // array of functions for the rendering loop  渲染数组  每一次渲染时执行里面的函数
+    var onRenderFcts = [];
+
+
+    var scene = new THREE.Scene()
+    var camera  = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.01, 1000);
+    camera.position.z = 2;
+    //  camera.position.set(4, -3, 5);
+
+    var light = new THREE.DirectionalLight(0xffffff);
+    light.position.set(4,0, 2);
+    scene.add(light);
+
+
+
+    window.addEventListener('resize', function(){
+        renderer.setSize( window.innerWidth, window.innerHeight )
+        camera.aspect   = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+    }, false)
+
+
+    // render the scene
+    onRenderFcts.push(function(){
+
+        renderer.render( scene, camera );
+      
+    })
+
+
+
+
+    // run the rendering loop   定时显示画面看来像动画
+    var previousTime = performance.now()
+
+
+
+    requestAnimationFrame(function animate(now){
+
+        requestAnimationFrame( animate );
+
+
+
+        //每次渲染执行数组里面的数
+        onRenderFcts.forEach(function(onRenderFct){
+            onRenderFct(now, now - previousTime)
+        })
+
+        previousTime    = now
+    })
+
+
+    var videoGrabbing = new THREEx.WebcamGrabbing()  //调用js里的函数
+
+
+    // attach the videoGrabbing.domElement to the body
+    document.body.appendChild(videoGrabbing.domElement)
+
+
+</script>
+<script>
+
+    var context = canvas.getContext("2d");
+    var video = document.getElementsByTagName("video")[0];
+
+    document.getElementById("picture").addEventListener("click", function () {
+
+        context.drawImage(video, 0, 0, 300, 300);
+
+        var image    = canvas.toDataURL("image/png");
+
+
+
+        var str3=image.replace(/\+/g, "-")
+
+
+
+
+ $('#elemdiv').html('正在识别,因网络原因可能识别较慢,请勿移动手机')
+        $.ajax({
+            url:"https://www.herozhou.com/upload/uniquehackdaydetectobject.php",
+            type:"POST",
+            data:'base64='+str3,
+            success:function(mesg)
+            {
+
+                if(mesg!='123')
+                {
+                  
+                    $.ajax({
+                        url:'http://www.herozhou.com:8080/ar/uniquehackdaydetectobject',
+                        type:'GET',
+                        dataType:'json',
+                        success:function(data){
+                             $('#elemdiv').html('识别成功');
+                            console.log(data.objectlist);
+                       
+                            var object=data.objectlist[0].finalobject
+                            if(object==="Coke"||object==="Bottle")
+                            {
+                                alert('得到Bottle')
+                                document.getElementById('suliaolist').style.display='block' 
+
+                            }
+                            else if(object==="Waterlon")
+                            {
+                                alert('得到Waterlon')
+                            }
+                          
+                            else if(object==="Laptop")
+                            {
+
+                                alert('得到Laptop')
+                                document.getElementById('laptoplist').style.display='block' 
+                            }
+                            else if(object==="Keyboard")
+                            {
+                                 alert('得到Laptop')
+                            }
+                             else if(object==="sed")
+                            {
+                                 $('#elemdiv').html('识别失败')
+
+                                 alert('识别失败')
+                            }
+                            else{
+                                  alert("获得"+data.objectlist[0].finalobject);
+                            }
+
+                        }
+                    })
+                }
+
+                else
+                {
+                    $('#elemdiv').html('识别失败')
+
+
+                }
+            }
+
+        })
+    });
+</script>
+
+<script>
+
+
+</script>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ipERS5S1nn9UOyrK9tNBe4WqIchFINFG"></script>
+<script src="./js/jquery-3.1.1.min.js">
+
+
+
+</script>
+
+<script src="vendor/qtip/jquery.qtip.min.js"></script>
+<script src="vendor/rainbow/rainbow.min.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta charset="UTF-8">
+<!--
+-->
+<!-- include three.js -->
+<script src='webarjs/three.js'></script>
+<script src='webarjs/threex.webcamgrabbing.js'></script>  <!--摄像头这个界面的JS-->
+
+
+<style>
+    #elemdiv div{
+        height: 35px;width: 200px;background-color: red;color: white;text-align: center;
+    }
+    #circle{
+        height:50%;width: 90%;border: 1px red solid;border-radius: 50%;
+        position: absolute;left: 2%;top: 10%;
+    }
+     #progress {
+        height: 35px;width: 100px;background-color: red;color: white;text-align: center;
+        position: absolute;left: 40%;top: 80%;
+    }
+</style>
+<body style='margin: 0px; overflow: hidden;'>
+
+<canvas id="canvas" width="300" height="300" style="display:none;" ></canvas>
+
+
+<div id="circle" style="display: none"></div>
+
+<div id="elemdiv">
+
+
+</div>
+<div id="progress">
+
+
+</div>
+
+<div style=" height: 35px;width: 70px;background-color: red;color: white;text-align: center;position: absolute;
+left: 47%;top: 70%" id="picture">开始识别</div>
+<div style=" height: 35px;width: 50px;background-color: red;color: white;text-align: center;position: absolute;
+left: 47%;top: 70%;display: none;" id="detect" >识别</div>
+<script>
+    //////////////////////////////////////////////////////////////////////////////////
+    //      Test if the browser support WebGL and getUserMedia
+    //////////////////////////////////////////////////////////////////////////////////
+    ;(function(){
+        // TODO backport those 2 in Detector.js
+        var hasGetUserMedia = (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia) ? true : false
+        var hasMediaStreamTrackSources = MediaStreamTrack.getSources ? true : false
+        var hasWebGL = ( function () { try { var canvas = document.createElement( 'canvas' ); return !! ( window.WebGLRenderingContext && ( canvas.getContext( 'webgl' ) || canvas.getContext( 'experimental-webgl' ) ) ); } catch ( e ) { return false; } } )()
+
+        if( hasWebGL === false ){
+            alert('your browser doesn\'t support navigator.getUserMedia()')
+        }
+        if( hasMediaStreamTrackSources === false ){
+            alert('your browser doesn\'t support MediaStreamTrack.getSources()')
+        }
+        if( hasGetUserMedia === false ){
+            alert('your browser doesn\'t support navigator.getUserMedia()')
+        }
+    })()
+
+
+    var renderer    = new THREE.WebGLRenderer({
+        antialias   : true,
+        alpha       : true
+    });
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    document.body.appendChild( renderer.domElement );
+
+    // array of functions for the rendering loop  渲染数组  每一次渲染时执行里面的函数
+    var onRenderFcts = [];
+
+    // init scene and camera
+    var scene = new THREE.Scene()
+    var camera  = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.01, 1000);
+    camera.position.z = 2;
+
+
+    var light = new THREE.PointLight(0xffffff, 2, 100);
+    light.position.set(4,0, 2);
+    scene.add(light);
+
+    window.addEventListener('resize', function(){
+        renderer.setSize( window.innerWidth, window.innerHeight )
+        camera.aspect   = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+    }, false)
+
+
+    // render the scene
+    onRenderFcts.push(function(){
+
+        renderer.render( scene, camera );
+
+    })
+
+    // run the rendering loop   定时显示画面看来像动画
+    var previousTime = performance.now()
+    requestAnimationFrame(function animate(now){
+
+        requestAnimationFrame( animate );
+
+
+
+
+        //每次渲染执行数组里面的数
+        onRenderFcts.forEach(function(onRenderFct){
+            onRenderFct(now, now - previousTime)
+        })
+
+        previousTime    = now
+    })
+
+
+        var videoGrabbing = new THREEx.WebcamGrabbing()  //调用js里的函数
+
+
+
+    // attach the videoGrabbing.domElement to the body
+    document.body.appendChild(videoGrabbing.domElement)
+
+
+
+</script>
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ipERS5S1nn9UOyrK9tNBe4WqIchFINFG"></script>
+<script src="js/jquery-3.1.1.min.js">
+
+
+
+</script>
+<script type="text/javascript">
+
+    function locationhref() {
+        var id = this.id;
+          window.location.href="pagedetail.html?id="+elemarrayposition[id].title;
+
+
+    }
+
+    var elemarray=[];//标签对象数组
+    var elemarrayposition=[];
+
+
+
+    var map = new BMap.Map("l-map");
+    var nowposotionlng,nowpositionlat;
+    var geolocation = new BMap.Geolocation();
+
+    geolocation.getCurrentPosition(function(r){
+        if(this.getStatus() == BMAP_STATUS_SUCCESS){
+            nowposotionlng=r.point.lng;
+
+            nowpositionlat =r.point.lat;
+
+            var nowpoint=new BMap.Point(nowposotionlng,nowpositionlat);
+
+            var options = {
+                onSearchComplete: function(results){
+                    // 判断状态是否正确
+                    if (local.getStatus() == BMAP_STATUS_SUCCESS){
+                        var s = [];
+
+                        for (var i = 0; i < results.getCurrentNumPois()&&i<10; i ++){
+
+                            var newBtn = document.createElement('div');
+
+                            var pointA = new BMap.Point(results.getPoi(i).point.lng,results.getPoi(i).point.lat);  // 创建点坐标A--大渡口区
+                            var pointB = new BMap.Point(nowposotionlng,nowpositionlat);  // 创建点坐标B--江北区
+
+                            newBtn.innerHTML=results.getPoi(i).title+ (map.getDistance(pointA,pointB)).toFixed(2)+"米";
+                            newBtn.style.position = "absolute";
+                            newBtn.style.left = (window.innerWidth/2+i*10)+"px";
+                            if(i<7)
+                                newBtn.style.top = (window.innerHeight/2-i*50)+"px";
+                            else
+                                newBtn.style.top = (window.innerHeight/2+i*40-200)+"px";
+                            newBtn.id=i;
+                            //   alert(newBtn.id)
+                            newBtn.onclick=locationhref;
+                            document.getElementById("elemdiv").appendChild(newBtn);
+
+                            elemarray.push(newBtn);
+                            elemarrayposition.push(results.getPoi(i));
+
+
+                            //   s.push(results.getPoi(i).title + ", " + results.getPoi(i).point.lng + ", " + results.getPoi(i).point.lat);
+
+                        }
+
+                    }
+                },
+                pageCapacity:100
+            };
+
+
+            var local = new BMap.LocalSearch(nowpoint, options);
+
+
+            var leftpoint=new BMap.Point( nowposotionlng-0.01,nowpositionlat-0.01);
+            var righttpoint=new BMap.Point( nowposotionlng+0.01,nowpositionlat+0.01);
+
+
+
+            var bounds=new BMap.Bounds(leftpoint,righttpoint)
+
+            local.searchInBounds("美食",bounds);
+
+        }
+        else {
+
+        }
+    },{enableHighAccuracy: true})
+    setInterval(function(){
+        $(".concor").hide();
+
+        geolocation.getCurrentPosition(function(r){
+            if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                nowposotionlng=r.point.lng;
+
+                nowpositionlat =r.point.lat;
+                var nowpoint=new BMap.Point(nowposotionlng,nowpositionlat);
+
+                var options = {
+                    onSearchComplete: function(results){
+                        document.getElementById("elemdiv").innerHTML='';
+                        // 判断状态是否正确
+                        if (local.getStatus() == BMAP_STATUS_SUCCESS){
+                            var s = [];
+
+                            for (var i = 0; i < results.getCurrentNumPois()&&i<10; i ++){
+
+                                var newBtn = document.createElement('div');
+                                var pointA = new BMap.Point(results.getPoi(i).point.lng,results.getPoi(i).point.lat);  // 创建点坐标A--大渡口区
+                                var pointB = new BMap.Point(nowposotionlng,nowpositionlat);  // 创建点坐标B--江北区
+
+                                newBtn.innerHTML=results.getPoi(i).title+ map.getDistance(pointA,pointB).toFixed(2)+"米";
+                                newBtn.style.position = "absolute";
+                                newBtn.style.left = (window.innerWidth/2+i*10)+"px";
+                                if(i<7)
+                                    newBtn.style.top = (window.innerHeight/2-i*50)+"px";
+                                else
+                                    newBtn.style.top = (window.innerHeight/2+i*40-200)+"px";
+                                newBtn.id=i;
+                                //   alert(newBtn.id)
+                                newBtn.onclick=locationhref;
+                                document.getElementById("elemdiv").appendChild(newBtn);
+
+                                elemarray.push(newBtn);
+                                elemarrayposition.push(results.getPoi(i));
+
+
+                                //   s.push(results.getPoi(i).title + ", " + results.getPoi(i).point.lng + ", " + results.getPoi(i).point.lat);
+
+                            }
+
+                        }
+                    },
+                    pageCapacity:100
+                };
+
+
+                var local = new BMap.LocalSearch(nowpoint, options);
+
+
+                var leftpoint=new BMap.Point( nowposotionlng-0.01,nowpositionlat-0.01);
+                var righttpoint=new BMap.Point( nowposotionlng+0.01,nowpositionlat+0.01);
+
+
+
+                var bounds=new BMap.Bounds(leftpoint,righttpoint)
+
+                local.searchInBounds("美食",bounds);
+
+            }
+            else {
+
+            }
+        },{enableHighAccuracy: true})
+
+    }, 20000)
+
+
+
+
+
+
+    /*
+     var positionx=window.innerWidth/2+"px";
+     var positiony=elem.style.top = window.innerHeight/2+"px";
+
+
+     var strx=positionx.split("px");
+     var numx=parseInt(strx);
+
+
+     var stry=positiony.split("px");
+     var numy=parseInt(stry);
+     // elem.style.visibility = "hidden";
+     */
+
+    window.addEventListener('deviceorientation', function(e){
+
+        //  document.getElementById("absolute").innerHTML=e.absolute;
+        //   document.getElementById("alpha").innerHTML=e.alpha;//0  360 是北
+        //    document.getElementById("beta").innerHTML=e.beta;
+        //     document.getElementById("gamma").innerHTML=e.gamma;
+
+        //  alert("123")
+        // cube.position.x= e.alpha/10;
+
+
+        for(var i=0;i<elemarray.length;i++)
+        {
+
+            var jd1 =  elemarrayposition[i].point.lat;
+            var wd1 =  elemarrayposition[i].point.lng;
+
+
+
+            //  var jd2 = 28.6509360000;
+            //  var wd2 = 115.8306480000;
+            var flag = 360-e.alpha;
+            var geolocation = new BMap.Geolocation();
+            geolocation.getCurrentPosition(function(r){
+                if(this.getStatus() == BMAP_STATUS_SUCCESS){
+                    wd2=r.point.lng;
+
+                    jd2 =r.point.lat;
+                }
+                else {
+
+                }
+            },{enableHighAccuracy: true})
+
+            function displaycube(a2) {
+
+                if(a2-flag>0)
+                    elemarray[i].style.left = (window.innerWidth/2+(a2-flag)*2)+"px";
+                else
+                    elemarray[i].style.left = (window.innerWidth/2-(flag-a2)*3)+"px";
+
+            }
+
+            //   var jd1 = 28.6569000000;
+            //  var wd1 = 115.8346220000;
+
+            var jdcha = jd1-jd2;//x
+            var wdcha = wd1-wd2;//y
+            var bi = jdcha/wdcha;
+            var a2 = 180/Math.PI *Math.atan(bi);
+            // window.alert(a2);
+            if(jdcha > 0&& wdcha > 0){
+                //window.alert("你在第一象限");
+                displaycube(a2);
+            }
+            if(jdcha < 0&& wdcha > 0){
+                //window.alert("你在第二象限");
+                a2 = 360+a2;
+                displaycube(a2);
+            }
+            if(jdcha < 0&& wdcha < 0){
+                //window.alert("你在第三象限");
+                a2 = 270-a2;
+                displaycube(a2);
+            }
+            if(jdcha > 0&& wdcha < 0){
+                // window.alert("你在第四象限");
+                a2 = 180+a2;
+                displaycube(a2);
+            }
+
+        }
+    });
+
+
+</script>
+
+
+<script>
+    function decodeUTF8(str){
+        return str.replace(/(\\u)(\w{4}|\w{2})/gi, function($0,$1,$2){
+            return String.fromCharCode(parseInt($2,16));
+        });
+    }
+    var context = canvas.getContext("2d");
+    var video = document.getElementsByTagName("video")[0];
+    document.getElementById("picture").addEventListener("click", function () {
+        $('#circle').show();
+        $('#picture').hide();
+ /*
+        for (var i = 0; i <= elemarray.length; i++) {
+            $('#' + i).hide();
+
+        }
+        */
+        $('#elemdiv').hide();
+        $("#detect").show();
+
+        });
+
+
+   // document.getElementById("detect").addEventListener("click", function () {
+    $("#detect").click(function(){
+
+            context.drawImage(video, 0, 0, 300, 300);
+
+        var image    = canvas.toDataURL("image/png");
+
+
+
+        var str3=image.replace(/\+/g, "-")
+
+
+
+
+        var text='';
+
+        $.ajax({
+            url:"https://www.herozhou.com:80/upload/recognizetext.php",
+            type:"POST",
+            data:'base64='+str3,
+            success:function(mesg)
+            {
+
+                if(mesg!='123')
+                {
+                    $('#progress').html('正在识别')
+
+                    $.ajax(
+                            { url: "http://www.herozhou.com:8080/ar/faceppdelecttext",
+
+                                type:'GET',
+                                dataType:'json',
+                                success: function(data) {
+ $('#progress').html('识别成功');
+
+
+                                    for(var i=0;i<data.textlist.length;i++)
+                                    {
+                                        text+=decodeUTF8(data.textlist[i].text)
+                                    }
+                                    console.log( text);
+
+                                    window.location.href="pagedetail.html?id="+text;
+                                }
+                            });
+
+
+
+                }
+
+                else
+                {
+                    $('#progress').html('识别失败,请靠近重试')
+
+
+                }
+
+            }
+
+        })
+    });
+
+</script>
+
+</body>

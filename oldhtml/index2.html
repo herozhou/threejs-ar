@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <script type="text/javascript" src="../js/jquery-3.1.1.min.js"></script>
+
+</head>
+<body>
+<video id="video" autoplay=""style='width:640px;height:480px'></video>
+<div><button id='picture' >PICTURE</button></div>
+<canvas id="canvas" width="640" height="480"></canvas>
+<script type="text/javascript">
+    var video = document.getElementById("video");
+    var context = canvas.getContext("2d");
+    var errocb = function () {
+        console.log('sth wrong!');
+    }
+
+    if (navigator.getUserMedia) { // 标准的API
+
+        navigator.getUserMedia({ "video": true }, function (stream) {
+
+            if (video.mozSrcObject !== undefined) {
+                //Firefox中，video.mozSrcObject最初为null，而不是未定义的，我们可以靠这个来检测Firefox的支持
+                video.mozSrcObject = stream;
+            }
+            else {
+
+                video.src = window.URL && window.URL.createObjectURL(stream) || stream;
+            }
+            video.play();
+        }, errocb);
+    } else if (navigator.webkitGetUserMedia) { // WebKit 核心的API
+        navigator.webkitGetUserMedia({ "video": true }, function (stream) {
+            video.src = window.webkitURL.createObjectURL(stream);
+            video.play();
+        }, errocb);
+    }
+
+    document.getElementById("picture").addEventListener("click", function () {
+
+        context.drawImage(video, 0, 0, 1024, 720);
+        var image    = canvas.toDataURL("image/png");
+        //console.log(image)
+       // console.log(image.substring(0,10000))
+        //console.log(image.substring(100000,200000))
+      //  console.log(image.substring(200000,300000))
+     //   console.log(image.substring(300000))
+       // console.log(image);
+       var str=image.substring(0,23);
+        var str2=image.substring(23);
+
+
+        console.log(image);
+      //  var str1=image.substring(0,10000);
+     //   var str2=image.substring(10000);
+    //window.location.href="https://www.herozhou.com:80/index.php?base64="+str1;
+  //      if(str1+str2===image)
+//            alert("123");
+     //   var w=window.open('http://localhost:63342/AR/img.html','image from canvas');
+      //  w.document.write("<img src='"+image+"' alt='from canvas'/>");
+     //   w.document.write(image)
+
+        $.ajax({
+            url:"index.php?",
+            type:"POST",
+            data:'base64='+image,
+            success:function(mesg)
+            {
+                console.log(mesg.length);
+            }
+
+
+
+        })
+    });
+</script>
+
+</body>
+</html>  

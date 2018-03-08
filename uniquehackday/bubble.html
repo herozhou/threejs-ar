@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>大鱼海棠-canvas-气泡</title>
+    <style>
+        body, html {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        *,
+        *::after,
+        *::before {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+
+        div, h3, p, canvas {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            display: inline-block;
+            position: absolute;
+            color: #fff;
+        }
+
+        .bigFish {
+            width: 100%;
+            height: 100%;
+            background-image: url('http://www.tofei.cc/comments/22_sea/img/fe69e1c4b74543a971977aaa1e178a82b80114bc.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .head_title {
+            position: absolute;
+            display: block;
+            width: 100%;
+            text-align: center;
+            transform: translate(0, 15vh);
+            font-size: 128px;
+            letter-spacing: -0.25em;
+            transition: transform 2s 0.8s;
+            -webkit-transition: transform 2s 0.8s;
+            color: #333333;
+
+        }
+
+        .head_title span {
+            display: inline-block;
+            animation: floatAround_1 8s ease-out infinite;
+            -webkit-animation: floatAround_1 8s ease-out infinite;
+            animation-play-state: running;
+        }
+
+        .head_title span:nth-child(even) {
+            animation: floatAround_2 10s ease-out infinite;
+            -webkit-animation: floatAround_2 10s ease-out infinite;
+        }
+
+        /*浮动的字*/
+        @keyframes floatAround_1 {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+            50% {
+                transform: translate3d(0, 0.1em, 0) rotate3d(0, 0, 1, -1deg);
+                animation-timing-function: ease-in;
+            }
+        }
+
+        @-webkit-keyframes floatAround_1 {
+            0%, 100% {
+                -webkit-transform: translate3d(0, 0, 0);
+            }
+            50% {
+                -webkit-transform: translate3d(0, 0.1em, 0) rotate3d(0, 0, 1, -1deg);
+                animation-timing-function: ease-in;
+            }
+        }
+
+        @keyframes floatAround_2 {
+            0%, 100% {
+                transform: translate3d(0, 0, 0);
+            }
+            50% {
+                transform: translate3d(0, 0.05em, 0) rotate3d(0, 0, 1, 1deg);
+                animation-timing-function: ease-in;
+            }
+        }
+
+        @-webkit-keyframes floatAround_2 {
+            0%, 100% {
+                -webkit-transform: translate3d(0, 0, 0);
+            }
+            50% {
+                -webkit-transform: translate3d(0, 0.05em, 0) rotate3d(0, 0, 1, 1deg);
+                animation-timing-function: ease-in;
+            }
+        }
+        #bubbles{
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body>
+<section class="bigFish">
+    <canvas id="bubbles"></canvas>
+</section>
+<script>
+    (function (window) {
+        'use strict';
+        function debunction () {
+                    timeout = nounce(func, wait, immediate) {//监听屏幕大小变化时，给点延迟，减少重新绘制canvas的频率
+                        var timeout;
+                        return function () {
+                            var context = this, args = arguments;
+                            var later = full;
+                    if (!immediate) func.apply(context, args);
+                };
+                var callNow = immediate && !timeout;
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+                if (callNow) func.apply(context, args);
+            }
+
+        }
+
+        var winsize = {width: window.innerWidth, height: window.innerHeight},//用于记录屏幕的大小
+            bubbles = {
+                canvas: null,
+                ctx: null,
+//                mousex: winsize.width - 30,
+//                mousey: winsize.height - 30,
+                mousex: winsize.width / 2,
+                mousey: winsize.height / 2,
+                cntr: 0,
+                circleArr: new Array(),//用于气泡队列
+                requestTd: undefined,
+                init: function () {
+                    //FIXME
+                    this.canvas = document.getElementById('bubbles');//获取canvas
+                    this.ctx = this.canvas.getContext('2d');//2d绘画模式
+                    //全屏
+                    this.canvas.width = winsize.width;
+                    this.canvas.height = winsize.height;
+                    //音乐
+//                    var music = document.getElementById('music');
+//                    music.play();
+                    //浏览器resize调整canvas画布的大小
+//                    var self = this;
+//                    this.debounceResize = debounce(function () {
+//                        winsize = {width: window.innerWidth, height: window.innerHeight};
+//                        self.canvas.height = winsize.height;
+//                        self.canvas.width = winsize.width;
+//                    }, 10);
+//                    window.addEventListener('resize', this.debounceResize);
+                },
+                loop: function () {//每一帧调用的方法（循环）
+                    this.requestId = requestAnimationFrame(bubbles.loop.bind(this));//requestID 是一个长整型非零值,作为一个唯一的标识符.你可以将该值作为参数传给
+                    //这就要求你的动画函数执行会先于浏览器重绘动作。通常来说，被调用的频率是每秒60次
+                    this.update();//庚子年气泡的位置
+                    this.render();//重新绘制
+                },
+                update: function () {
+                    if (this.cntr++ % 1 == 0) {//多少次循环，执行添加一个圆
+                        this.createCircle();
+                    }
+                    for (var circle in this.circleArr) {
+                        circle = this.circleArr[circle];
+                        var max = 2, min = -2;
+                        if (this.mousex <= winsize.width / 2 - winsize.width * 0.1) {//当处于左边
+                            min = -4;
+                        } else if (this.mousex >= winsize.width / 2 + winsize.width * 0.1) {//当处于右边
+                            max = 4;
+                        }
+                        circle.x += Math.floor(Math.random() * (max - min + 1)) + min;//floor向下取整，泡泡的左右移动，当处于屏幕左右两边上升过程有偏移
+                        circle.y -= Math.random() * 15;
+                    }
+                    //当泡泡跑出可视范围则把该泡泡从队列中去除
+                    while (this.circleArr.length > 2 && (this.circleArr[0].x + this.circleArr[0].s > winsize.width || this.circleArr[0].x + this.circleArr[0].s < 0 || this.circleArr[0].y + this.circleArr[0].s > winsize.height || this.circleArr[0].y + this.circleArr[0].s < 0)) {
+                        this.circleArr.shift();//方法用于把数组的第一个元素从其中删除，并返回第一个元素的值
+                    }
+                },
+                render: function () {//遍历队列，调用画圆方法
+                    //console.log('render');
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);//clear
+                    //console.log( this.circleArr);
+                    for (var circle in this.circleArr) {
+                        var current = this.circleArr[circle];
+                        this.drawCircle(current.x, current.y, current.s);
+                    }
+                },
+                createCircle: function () {//间隔时间在队列中添加气泡圆
+                    var temp = this.circleArr[this.circleArr.length - 1];
+                    this.circleArr[this.circleArr.length] = {
+                        x: this.mousex,
+                        y: this.mousey,
+                        s: Math.random() * winsize.height / 60
+                    };
+                },
+                drawCircle: function (x, y, radius) {//画圆方法
+                    this.ctx.fillStyle = "rgba(255,255,255,0.5)";
+                    this.ctx.beginPath();
+                    this.ctx.arc(x, y, radius, 0, Math.PI * 2, false);
+                    this.ctx.fill();
+                },
+                start: function () {//开始画圆
+                    if (!this.requestId) {
+                        document.onmousemove = this.getMouseCoordinates.bind(this);
+                        this.loop();
+                    }
+                },
+                stop: function () {//停止画圆
+                    if (this.requestId) {
+                        window.canclelAnimationFrame(this.requestId);
+                        this.requestId = undefined;
+                        document.onmousemove = null;
+                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                    }
+
+                },
+                getMouseCoordinates: function (ev) {//记录鼠标当时所在的位置，mousemove..
+//                    var ev = ev || window.event;
+//                    this.mousex = ev.pageX;
+//                    this.mousey = ev.pageY;
+                    this.mousex = window.innerWidth / 2;
+                    this.mousey = window.innerHeight / 2;
+                }
+            };
+        bubbles.init();
+        bubbles.start();
+    })(window);
+</script>
+</body>
+</html>

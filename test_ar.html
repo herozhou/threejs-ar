@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta charset="UTF-8">
+
+<!-- include three.js -->
+<script src='webarjs/three.js'></script>
+<!-- <script src='webarjs/stats.min.js'></script>FPS的js-->
+
+<!-- include some extensions -->
+<script src='webarjs/threex.webcamgrabbing.js'></script>  <!--摄像头这个界面的JS-->
+<script src="js/jquery-3.1.1.min.js"></script>
+
+<style>
+    #elemdiv {
+        height: 35px;width: 100px;background-color: red;color: white;text-align: center;
+        position: absolute;left: 40%;top: 80%;
+    }
+    #picture{
+        height:40px;width: 30%;
+        position: absolute;left: 40%;top: 85%;
+    }
+</style>
+<body style='margin: 0px; overflow: hidden;'>
+
+
+<div>
+
+</div>
+
+
+<script>
+
+
+
+
+</script>
+<script>
+
+
+        'use strict';
+
+        var videoElement = document.querySelector('video');
+
+        navigator.mediaDevices.enumerateDevices()
+            .then(gotDevices).then(getStream).catch(handleError);
+
+
+        function gotDevices(deviceInfos) {
+            for (var i = 0; i !== deviceInfos.length; ++i) {
+                var deviceInfo = deviceInfos[i];
+                var option = document.createElement('option');
+                option.value = deviceInfo.deviceId;
+                if (deviceInfo.kind === 'audioinput') {
+//                    option.text = deviceInfo.label ||
+//                        'microphone ' + (audioSelect.length + 1);
+                    console.log(option);
+                } else if (deviceInfo.kind === 'videoinput') {
+//                    option.text = deviceInfo.label || 'camera ' +
+//                        (videoSelect.length + 1);
+//                    videoSelect.appendChild(option);
+                    console.log(deviceInfo)
+
+                } else {
+                    console.log('Found one other kind of source/device: ', deviceInfo);
+                }
+            }
+        }
+
+        function getStream() {
+            if (window.stream) {
+                window.stream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
+            }
+//
+//            var constraints = {
+//                audio: {
+//                    deviceId: {exact: audioSelect.value}
+//                },
+//                video: {
+//                    deviceId: {exact: videoSelect.value}
+//                }
+//            };
+
+            navigator.mediaDevices.getUserMedia(constraints).
+            then(gotStream).catch(handleError);
+        }
+
+        function gotStream(stream) {
+            window.stream = stream; // make stream available to console
+            videoElement.srcObject = stream;
+        }
+
+        function handleError(error) {
+            console.log('Error: ', error);
+        }
+
+
+
+</script>
+<script src="js/jquery-3.1.1.min.js">
+
+
+
+</script>
+
+
+</body>
+
+</html>

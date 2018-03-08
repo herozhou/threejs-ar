@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>HTML5 GetUserMedia Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta charset="utf-8"/>
+    <style>
+        #videoBox{position: absolute;left: 0;top: 0;z-index: 1;height: 100%;width: auto}
+        #videoWrap{position: relative;left: 0;top: 0;background: #4CAABE;overflow: hidden;}
+    </style>
+
+</head>
+<body>
+
+
+<div class="cameravideo"  id="videoWrap">
+<video  autoplay="autoplay"  id="videoBox"></video>
+</div>
+
+<script src="js/jquery-3.1.1.min.js"></script>
+<script type="text/javascript">
+    var video = document.querySelector('video');
+    var audio, audioType;
+    navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+
+    var exArray = []; //存储设备源ID
+    MediaStreamTrack.getSources(function (sourceInfos) {
+        for (var i = 0; i != sourceInfos.length; ++i) {
+            var sourceInfo = sourceInfos[i];
+            //这里会遍历audio,video，所以要加以区分
+            if (sourceInfo.kind === 'video') {
+                exArray.push(sourceInfo.id);
+            }
+        }
+    });
+
+    window.onload = function(){
+
+        if (navigator.getUserMedia) {
+            navigator.getUserMedia({
+                'video': {
+                    'optional': [{
+                        'sourceId': exArray[1] //0为前置摄像头，1为后置
+                    }]
+                },
+                'audio':false
+            }, successFunc, errorFunc);    //success是获取成功的回调函数
+        }
+        else {
+            alert('Native device media streaming (getUserMedia) not supported in this browser.');
+        }
+    };
+
+    function successFunc(stream) {
+        //alert('Succeed to get media!');
+        if (video.mozSrcObject !== undefined) {
+            //Firefox中，video.mozSrcObject最初为null，而不是未定义的，我们可以靠这个来检测Firefox的支持
+            video.mozSrcObject = stream;
+        }
+        else {
+            video.src = window.URL && window.URL.createObjectURL(stream) || stream;
+
+        }
+
+
+        //video.play();
+        var videoWrap = document.getElementById('videoWrap');
+        videoWrap.style.width =  window.innerWidth + 'px';
+        videoWrap.style.height =  window.innerHeight + 'px';
+
+    }
+    function errorFunc(e) {
+        alert('Error！'+e);
+    }
+
+
+
+
+</script>
+</body>
+</html> 

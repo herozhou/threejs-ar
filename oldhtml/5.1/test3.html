@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="initial-scale=1.0,width=device-width,user-scalable=no">
+
+ 
+    <link rel="stylesheet" href="css/dialog.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="jquery-3.1.1.min.js"></script>
+
+    <script type="text/javascript" src="jquery.qrcode.min.js"></script>
+    <title>HiAR 管理后台 | 应用列表</title>
+</head>
+<body type="card-body" need-signin need-leftbar>
+<div class="toolbar" style="margin-top: -65px">
+    <div class="toolbar-container">
+        <div class="left">
+        <!--
+            <button class="mdl-button mdl-js-button mdl-button--raised mdl-button--accent mdl-js-ripple-effect" id="new-app" onclick=" append();">
+                新建应用
+            </button>
+            -->
+        </div>
+        <div class="right">
+            hello 
+        </div>
+        <div class="clear"></div>
+    </div>
+</div>
+<div class="card-shell">
+    <div class="card-large mdl-card mdl-shadow--2dp center card-normal-offset" id="info-form">
+        <div class="no-padding" id="loading">
+            <div id="loading-bar" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+        </div>
+        <div class="no-padding" id="list">
+            <table class="mdl-data-table mdl-js-data-table" width="100%" style="border: 2px solid silver">
+                <thead>
+                <tr>
+                    <!--<th class="mdl-data-table__cell--non-numeric">应用图标</th>-->
+                    <th class="mdl-data-table__cell--non-numeric">应用id</th>
+                     <th class="mdl-data-table__cell--non-numeric">应用信息</th>
+                    <th class="mdl-data-table__cell--non-numeric">图集管理</th>
+                    <th class="mdl-data-table__cell--non-numeric">创建日期</th>
+                     <th class="mdl-data-table__cell--non-numeric">操作</th>
+                </tr>
+                </thead>
+                <tbody id="list-body">
+               
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- 路径信息 -->
+<div id="page-path">应用管理</div>
+<script>
+ 
+  var datalist;
+    $.ajax(
+    { url: "http://www.herozhou.com:8080/ar/Newsdetail", 
+    
+    type:'GET',
+    dataType:'json',
+    success: function(data){
+       
+       //alert(data.applicationlist[0].id);
+       datalist=data.applicationlist;
+    for(var i=0;i<datalist.length;i++)
+    {
+
+
+    document.getElementById("list-body").innerHTML+='<tr> '+
+    ' <th class="mdl-data-table__cell--non-numeric">'+ datalist[i].id+'</th> '+
+    '<th class="mdl-data-table__cell--non-numeric"><a href="applicationdetail.html?id='+datalist[i].id+'">应用信息</a><th>'+
+    '<th class="mdl-data-table__cell--non-numeric"><a href="upload.jsp">图集管理</a></th>'+
+    ' <th class="mdl-data-table__cell--non-numeric">2017/4/20'+
+    '</th> <th class="mdl-data-table__cell--non-numeric">删除应用'+
+    '</th> </tr>';
+
+    
+
+     }
+      }});
+    /*
+function append()
+{
+ 
+
+        //$ajax ->php  获取图集id  然后把id插入到数据库中
+    $.ajax(
+    { url: "http://localhost:8080/makesi/addapplication", 
+    
+    type:'GET',
+    dataType:'json',
+    success: function(){
+  
+      //一个应用就对应一个图集
+      //创建应用的时候创建图集
+   $.ajax(
+    { url: "http://localhost:8080/makesi/Newsdetail", 
+    
+    type:'GET',
+    dataType:'json',
+    success: function(data){
+       
+       //alert(data.applicationlist[0].id);
+       datalist=data.applicationlist;
+        document.getElementById("list-body").innerHTML='';
+    for(var i=0;i<datalist.length;i++)
+    {
+
+
+    document.getElementById("list-body").innerHTML+='<tr> <!--<th class="mdl-data-table__cell--non-numeric">应用信息</th>--> <th class="mdl-data-table__cell--non-numeric">'+
+    datalist[i].id+'</th> <th class="mdl-data-table__cell--non-numeric"></th> <th style="padding-right:110px">2017/4/20</th> <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th> </tr>';
+
+    
+
+     }
+      }});
+ }
+  
+
+  });
+   
+}
+
+*/
+
+</script>
+</body>
+</html>

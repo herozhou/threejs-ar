@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<!-- Production Version, Minified -->
+<script src="js/aframe.js"></script>
+</head>
+<body>
+<a-scene>
+  <!--<a-assets>使用资源管理系统来缓存资源，为了更好的性能，这个标签内的资源将会预加载缓存起来--> 
+  <a-assets>
+    <!--<a-asset-item>加载各种资源 比如3D模型或者材质  
+    <a-asset-item id="floor-obj" src="fox.obj"></a-asset-item>--> 
+    <!-- 加载图片  -->
+    <!--加载视频  -->
+    <img src="img/body.png" alt="" id="img2"/>
+    <video id="video" src="video/eatdoudou.mp4"></video>
+    <img src="img/city.jpg" alt="" id="img"/>
+    <a-mixin id="text" text="align: center; width: 4;
+               value: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut enim ad minim veniam"></a-mixin>
+      <a-mixin id="cube" geometry="primitive: box"></a-mixin>
+      <a-mixin id="cube-hovered" material="color: #CC435F"></a-mixin>
+      <a-mixin id="cube-selected" material="color: #876A96"></a-mixin>
+      <a-mixin id="red" material="color: #F35F5F"></a-mixin>
+      <a-mixin id="green" material="color: #9DE0AD"></a-mixin>
+      <a-mixin id="blue" material="color: #36A3EB"></a-mixin>
+      <a-mixin id="yellow" material="color: #F1EA65"></a-mixin>
+      <a-mixin id="sphere" geometry="primitive: sphere"></a-mixin>
+
+  </a-assets>
+   <!--相机  -->
+  <a-camera fov="80" position="0 2 3.7"><a-cursor></a-cursor></a-camera>
+  <!--materialchange__floor 组件名，material材质与属性细节 obj-model模型obj文件  
+  <a-entity materialchange__floor material="src: #f1-texture;  metalness: 0.6;repeat:25;" id="floor" obj-model="obj: #floor-obj;"></a-entity>  -->
+  <a-text mixin="text" position="-3 0 -10" wrap-count="20" rotation="" scale="" visible="" text=""></a-text>
+<a-image  position="-6 0 -10"  src="#img2">
+
+
+</a-image>
+  <a-entity mixin="text"
+            id="showtext"
+          geometry="primitive: plane; height: auto; width: auto"
+          material="src:#img2"
+          position="3 0 -4" rotation="0 -40 0"></a-entity>
+
+    <a-entity position="4 1 -5">
+        <a-entity id="foregroundCube"
+                  class="intersectable"
+                  mixin="green cube"
+                  >
+            <a-animation begin="click" attribute="rotation" to="0 360 0"
+                         easing="linear" dur="2000" fill="backwards"></a-animation>
+        </a-entity>
+    </a-entity>
+
+    <!--天空盒  -->
+  <a-sky color="#EEEEFF" material="src: #img"></a-sky>
+</a-scene>
+
+
+<script>
+  //  document.getElementById('text').text='align: center; width: 4;value: Liam'
+  //setTimeout(function(){ document.getElementById('text').setAttribute('text','align: center; width: 4;value: Liam')},7000)
+  (function () {
+      // Custom states.
+      var clickedEl = null;
+      var els = document.querySelectorAll('a-entity');
+      Array.prototype.forEach.call(els, function (el) {
+          el.addEventListener('click', function () {
+              if (clickedEl && clickedEl !== el) {
+                  clickedEl.removeState('selected');
+              }
+              if (!el.classList.contains('clickable')) { return; }
+              clickedEl = el;
+              clickedEl.addState('selected');
+          });
+      });
+
+      // Responding to mouse events.
+      var cubes = document.querySelectorAll('a-entity[mixin*=cube]');
+      var i;
+      for (i = 0; i < cubes.length; ++i) {
+          cubes[i].addEventListener('click', function () {
+              var href = this.getAttribute('href');
+              if (!href) { return; }
+              window.top.postMessage({type: 'navigate', data: {url: href}}, '*');
+          })
+      }
+
+      // testing mouseenter and mouseleave
+      var foregroundCube = document.querySelector('#showtext');
+      foregroundCube.addEventListener('mouseenter', function (evt) {
+          foregroundCube.setAttribute('mixin','cube cube-hovered')
+      })
+      foregroundCube.addEventListener('mouseleave', function (evt) {
+          foregroundCube.setAttribute('mixin','green cube')
+      })
+      foregroundCube.addEventListener('mousedown', function (evt) {
+          foregroundCube.setAttribute('mixin','cube cube-selected')
+      })
+      foregroundCube.addEventListener('mouseup', function (evt) {
+          foregroundCube.setAttribute('mixin','cube cube-hovered')
+      })
+      foregroundCube.addEventListener('click', function (evt) {
+          var scene = document.querySelector('a-scene');
+          var clickRing = document.createElement('a-entity');
+          clickRing.id = 'clickRing-'+new Date().getTime();
+          clickRing.setAttribute('material','color: magenta; transparent: true; opacity: 0.6');
+          clickRing.setAttribute('geometry','primitive: ring; radius-inner: 0.5; radius-outer: 0.6');
+          clickRing.setAttribute('position',evt.detail.intersection.point);
+          var opacityAnimation = document.createElement('a-animation');
+          opacityAnimation.setAttribute('attribute','material.opacity');
+          opacityAnimation.setAttribute('to',0);
+          opacityAnimation.setAttribute('duration','250');
+          opacityAnimation.setAttribute('easing','ease-out-quad');
+        window.location.href='https://www.baidu.com'
+      })
+  })();
+</script>
+</body>
+</html>
